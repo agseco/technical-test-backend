@@ -1,6 +1,8 @@
-package com.playtomic.tests.wallet.service;
+package com.playtomic.tests.wallet.infrastructure.stripe;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.playtomic.tests.wallet.domain.Payment;
+import com.playtomic.tests.wallet.domain.PaymentGateway;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,15 +13,15 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.net.URI;
 
-
 /**
  * Handles the communication with Stripe.
  *
  * A real implementation would call to String using their API/SDK.
  * This dummy implementation throws an error when trying to charge less than 10€.
  */
+// TODO: separate StripeHttpClient and StripePaymentGateway abstractions
 @Service
-public class StripeService {
+public class StripePaymentGatewayAdapter implements PaymentGateway {
 
     @NonNull
     private URI chargesUri;
@@ -30,9 +32,9 @@ public class StripeService {
     @NonNull
     private RestTemplate restTemplate;
 
-    public StripeService(@Value("${stripe.simulator.charges-uri}") @NonNull URI chargesUri,
-                         @Value("${stripe.simulator.refunds-uri}") @NonNull URI refundsUri,
-                         @NonNull RestTemplateBuilder restTemplateBuilder) {
+    public StripePaymentGatewayAdapter(@Value("${stripe.simulator.charges-uri}") @NonNull URI chargesUri,
+                                       @Value("${stripe.simulator.refunds-uri}") @NonNull URI refundsUri,
+                                       @NonNull RestTemplateBuilder restTemplateBuilder) {
         this.chargesUri = chargesUri;
         this.refundsUri = refundsUri;
         this.restTemplate =

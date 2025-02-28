@@ -1,9 +1,4 @@
-package com.playtomic.tests.wallet.service.impl;
-
-
-import com.playtomic.tests.wallet.service.StripeAmountTooSmallException;
-import com.playtomic.tests.wallet.service.StripeServiceException;
-import com.playtomic.tests.wallet.service.StripeService;
+package com.playtomic.tests.wallet.infrastructure.stripe;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,10 +12,11 @@ import java.net.URI;
  *
  * How would you test this?
  */
-public class StripeServiceTest {
+// TODO: possibly test with by mocking HTTP request/response
+public class StripePaymentGatewayAdapterTest {
 
     URI testUri = URI.create("http://how-would-you-test-me.localhost");
-    StripeService s = new StripeService(testUri, testUri, new RestTemplateBuilder());
+    StripePaymentGatewayAdapter s = new StripePaymentGatewayAdapter(testUri, testUri, new RestTemplateBuilder());
 
     @Test
     public void test_exception() {
