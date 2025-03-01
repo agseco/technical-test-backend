@@ -31,6 +31,10 @@ public class Wallet {
         public static Id of(@NonNull UUID id) {
             return new Wallet.Id(id);
         }
+
+        public static Id of(@NonNull String id) {
+            return of(UUID.fromString(id));
+        }
     }
 
     public Wallet topUp(BigDecimal amount) {

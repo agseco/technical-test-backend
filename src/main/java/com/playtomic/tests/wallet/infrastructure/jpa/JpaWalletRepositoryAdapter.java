@@ -2,6 +2,7 @@ package com.playtomic.tests.wallet.infrastructure.jpa;
 
 import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.Optional;
 public class JpaWalletRepositoryAdapter implements WalletRepository {
     private final JpaWalletRepository jpaRepository;
 
+    @Autowired
     public JpaWalletRepositoryAdapter(JpaWalletRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
