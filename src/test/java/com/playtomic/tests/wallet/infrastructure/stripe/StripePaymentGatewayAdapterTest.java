@@ -37,7 +37,7 @@ class StripePaymentGatewayAdapterTest {
     @Test
     void shouldChargeCreditCardSuccessfully() {
         // Given
-        String creditCardNumber = "4242424242424242";
+        PaymentGateway.CardDetails cardDetails = validCardDetails();
         BigDecimal amount = BigDecimal.valueOf(100);
         String fakePaymentId = UUID.randomUUID().toString();
         String jsonResponse = "{\"id\": \"" + fakePaymentId + "\", \"amount\": " + amount + "}";
@@ -45,11 +45,11 @@ class StripePaymentGatewayAdapterTest {
         // Expect
         mockServer.expect(requestTo(chargesUri))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("{\"credit_card\": \"" + creditCardNumber + "\", \"amount\": " + amount + "}"))
+                .andExpect(content().json("{\"credit_card\": \"" + cardDetails.number() + "\", \"amount\": " + amount + "}"))
                 .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
         // When
-        Payment payment = paymentGatewayAdapter.charge(creditCardNumber, amount);
+        Payment payment = paymentGatewayAdapter.charge(cardDetails, amount);
 
         // Then
         assertThat(payment).isNotNull();
@@ -64,19 +64,23 @@ class StripePaymentGatewayAdapterTest {
     @Test
     void shouldThrowWhenTheProvidedAmountIsTooSmall() {
         // Given
-        String creditCardNumber = "4242424242424242";
+        PaymentGateway.CardDetails cardDetails = validCardDetails();
         BigDecimal amount = BigDecimal.valueOf(0.10);
 
         // Expect
         mockServer.expect(requestTo(chargesUri))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("{\"credit_card\": \"" + creditCardNumber + "\", \"amount\": " + amount + "}"))
+                .andExpect(content().json("{\"credit_card\": \"" + cardDetails.number() + "\", \"amount\": " + amount + "}"))
                 .andRespond(withStatus(HttpStatusCode.valueOf(422)));
 
         // Then
-        assertThatThrownBy(() -> paymentGatewayAdapter.charge(creditCardNumber, amount))
+        assertThatThrownBy(() -> paymentGatewayAdapter.charge(cardDetails, amount))
                 .isExactlyInstanceOf(PaymentGateway.ChargeAmountTooSmallException.class);
 
         mockServer.verify();
+    }
+
+    private PaymentGateway.CardDetails validCardDetails() {
+        return new PaymentGateway.CardDetails("4242424242424242");
     }
 }

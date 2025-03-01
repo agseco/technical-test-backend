@@ -5,7 +5,11 @@ import lombok.NonNull;
 import java.math.BigDecimal;
 
 public interface PaymentGateway {
-    Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount);
+    Payment charge(@NonNull CardDetails cardDetails, @NonNull BigDecimal amount);
+
+    record CardDetails(
+            String number
+    ) { }
 
     class Exception extends RuntimeException { }
     class ChargeAmountTooSmallException extends Exception { }

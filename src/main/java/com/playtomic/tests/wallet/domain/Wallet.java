@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -14,12 +15,12 @@ public class Wallet {
     @EqualsAndHashCode.Include
     @NonNull private final Wallet.Id id;
     @NonNull private final UserId userId;
-    @NonNull private final Double balance;
+    @NonNull private final BigDecimal balance;
 
     public Wallet(
         @NonNull Wallet.Id id,
         @NonNull UserId userId,
-        @NonNull Double balance
+        @NonNull BigDecimal balance
     ) {
         this.id = id;
         this.userId = userId;
@@ -32,15 +33,14 @@ public class Wallet {
         }
     }
 
-    public Wallet topUp(double amount) {
-        // TODO: replace by precondition?
-        if (amount <= 0) {
+    public Wallet topUp(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Top up amount must be positive");
         }
         return new Wallet(
                 this.id,
                 this.userId,
-                this.balance + amount
+                this.balance.add(amount)
         );
     }
 }

@@ -6,9 +6,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
+@Setter
+@Getter
+@ToString
 @Entity
 @Table(name = "wallets")
 public class WalletEntity {
@@ -16,49 +23,17 @@ public class WalletEntity {
     @Id
     private UUID id;
     private UUID userId;
-    private double balance;
+    private BigDecimal balance;
 
     @Version
     private Long version;
 
     protected WalletEntity() {}
 
-    public WalletEntity(UUID id, UUID userId, double balance) {
+    public WalletEntity(UUID id, UUID userId, BigDecimal balance) {
         this.id = id;
         this.userId = userId;
         this.balance = balance;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public Wallet toDomain() {
@@ -75,15 +50,5 @@ public class WalletEntity {
                 wallet.getUserId().id(),
                 wallet.getBalance()
         );
-    }
-
-    @Override
-    public String toString() {
-        return "WalletEntity{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", balance=" + balance +
-                ", version=" + version +
-                '}';
     }
 }

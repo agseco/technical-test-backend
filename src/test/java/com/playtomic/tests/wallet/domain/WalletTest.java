@@ -2,6 +2,7 @@ package com.playtomic.tests.wallet.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +15,7 @@ class WalletTest {
         // Given
         UUID walletId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        double initialBalance = 100.0;
+        BigDecimal initialBalance = BigDecimal.valueOf(100.0);
 
         // When
         Wallet wallet = new Wallet(Wallet.Id.of(walletId), new UserId(userId), initialBalance);
@@ -53,10 +54,10 @@ class WalletTest {
         Wallet wallet = WalletFaker.withBalance(100.0);
 
         // When
-        Wallet updatedWallet = wallet.topUp(50.0);
+        Wallet updatedWallet = wallet.topUp(BigDecimal.valueOf(50.0));
 
         // Then
-        assertThat(updatedWallet.getBalance()).isEqualTo(150.0);
+        assertThat(updatedWallet.getBalance()).isEqualTo(BigDecimal.valueOf(150.0));
     }
 
     @Test
@@ -65,7 +66,7 @@ class WalletTest {
         Wallet wallet = WalletFaker.withBalance(100.0);
 
         // Then
-        assertThatThrownBy(() -> wallet.topUp(-10.0))
+        assertThatThrownBy(() -> wallet.topUp(BigDecimal.valueOf(-10.0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Top up amount must be positive");
     }
@@ -76,7 +77,7 @@ class WalletTest {
         Wallet wallet = WalletFaker.withBalance(100.0);
 
         // Then
-        assertThatThrownBy(() -> wallet.topUp(0))
+        assertThatThrownBy(() -> wallet.topUp(BigDecimal.ZERO))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Top up amount must be positive");
     }

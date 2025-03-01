@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.playtomic.tests.wallet.domain.Payment;
 import com.playtomic.tests.wallet.domain.PaymentGateway;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,8 @@ public class StripePaymentGatewayAdapter implements PaymentGateway {
                 .build();
     }
 
-    public Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount) {
-        ChargeRequest body = new ChargeRequest(creditCardNumber, amount);
+    public Payment charge(@NonNull CardDetails cardDetails, @NonNull BigDecimal amount) {
+        ChargeRequest body = new ChargeRequest(cardDetails.number(), amount);
         ChargeResponse chargeResponse = restTemplate.postForObject(chargesUri, body, ChargeResponse.class);
         return requireNonNull(chargeResponse).asPayment();
     }
@@ -52,6 +51,9 @@ public class StripePaymentGatewayAdapter implements PaymentGateway {
         BigDecimal amount;
     }
 
+    @Getter
+    @Setter
+    @ToString
     private static class ChargeResponse {
 
         @NonNull
@@ -61,26 +63,10 @@ public class StripePaymentGatewayAdapter implements PaymentGateway {
 
         @JsonCreator
         public ChargeResponse(
-                @JsonProperty(value = "id", required = true) String id,
-                @JsonProperty(value = "amount", required = true) BigDecimal amount
+                @JsonProperty(value = "id", required = true) @NonNull String id,
+                @JsonProperty(value = "amount", required = true) @NonNull BigDecimal amount
         ) {
             this.id = id;
-            this.amount = amount;
-        }
-
-        public @NonNull String getId() {
-            return id;
-        }
-
-        public void setId(@NonNull String id) {
-            this.id = id;
-        }
-
-        public @NonNull BigDecimal getAmount() {
-            return amount;
-        }
-
-        public void setAmount(@NonNull BigDecimal amount) {
             this.amount = amount;
         }
 

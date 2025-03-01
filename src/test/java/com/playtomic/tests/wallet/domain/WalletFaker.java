@@ -2,6 +2,7 @@ package com.playtomic.tests.wallet.domain;
 
 import com.playtomic.tests.utils.Faker;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public class WalletFaker {
@@ -13,8 +14,10 @@ public class WalletFaker {
         );
     }
 
-    private static double randomBalance() {
-        return Faker.faker.number().randomDouble(2, 0, 1000);
+    private static BigDecimal randomBalance() {
+        return BigDecimal.valueOf(
+                Faker.faker.number().randomDouble(2, 0, 1000)
+        );
     }
 
     public static Wallet withId(Wallet.Id id) {
@@ -25,11 +28,11 @@ public class WalletFaker {
         );
     }
 
-    public static Wallet withBalance(double balance) {
+    public static Wallet withBalance(Double balance) {
         return new Wallet(
                 Id.random(),
                 UserId.of(UUID.randomUUID()),
-                balance
+                BigDecimal.valueOf(balance)
         );
     }
 
