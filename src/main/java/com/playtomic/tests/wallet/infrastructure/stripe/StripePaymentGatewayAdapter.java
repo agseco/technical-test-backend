@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.infrastructure.stripe;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.playtomic.tests.wallet.domain.Payment;
 import com.playtomic.tests.wallet.domain.PaymentGateway;
@@ -13,57 +14,30 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.net.URI;
 
-/**
- * Handles the communication with Stripe.
- *
- * A real implementation would call to String using their API/SDK.
- * This dummy implementation throws an error when trying to charge less than 10€.
- */
-// TODO: separate StripeHttpClient and StripePaymentGateway abstractions
+import static java.util.Objects.requireNonNull;
+
 @Service
 public class StripePaymentGatewayAdapter implements PaymentGateway {
 
     @NonNull
-    private URI chargesUri;
+    private final URI chargesUri;
 
     @NonNull
-    private URI refundsUri;
-
-    @NonNull
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public StripePaymentGatewayAdapter(@Value("${stripe.simulator.charges-uri}") @NonNull URI chargesUri,
-                                       @Value("${stripe.simulator.refunds-uri}") @NonNull URI refundsUri,
                                        @NonNull RestTemplateBuilder restTemplateBuilder) {
         this.chargesUri = chargesUri;
-        this.refundsUri = refundsUri;
         this.restTemplate =
                 restTemplateBuilder
                 .errorHandler(new StripeRestTemplateResponseErrorHandler())
                 .build();
     }
 
-    /**
-     * Charges money in the credit card.
-     *
-     * Ignore the fact that no CVC or expiration date are provided.
-     *
-     * @param creditCardNumber The number of the credit card
-     * @param amount The amount that will be charged.
-     *
-     * @throws StripeServiceException
-     */
-    public Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount) throws StripeServiceException {
+    public Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount) {
         ChargeRequest body = new ChargeRequest(creditCardNumber, amount);
-        return restTemplate.postForObject(chargesUri, body, Payment.class);
-    }
-
-    /**
-     * Refunds the specified payment.
-     */
-    public void refund(@NonNull String paymentId) throws StripeServiceException {
-        // Object.class because we don't read the body here.
-        restTemplate.postForEntity(chargesUri.toString(), null, Object.class, paymentId);
+        ChargeResponse chargeResponse = restTemplate.postForObject(chargesUri, body, ChargeResponse.class);
+        return requireNonNull(chargeResponse).asPayment();
     }
 
     @AllArgsConstructor
@@ -76,5 +50,45 @@ public class StripePaymentGatewayAdapter implements PaymentGateway {
         @NonNull
         @JsonProperty("amount")
         BigDecimal amount;
+    }
+
+    private static class ChargeResponse {
+
+        @NonNull
+        private String id;
+        @NonNull
+        private BigDecimal amount;
+
+        @JsonCreator
+        public ChargeResponse(
+                @JsonProperty(value = "id", required = true) String id,
+                @JsonProperty(value = "amount", required = true) BigDecimal amount
+        ) {
+            this.id = id;
+            this.amount = amount;
+        }
+
+        public @NonNull String getId() {
+            return id;
+        }
+
+        public void setId(@NonNull String id) {
+            this.id = id;
+        }
+
+        public @NonNull BigDecimal getAmount() {
+            return amount;
+        }
+
+        public void setAmount(@NonNull BigDecimal amount) {
+            this.amount = amount;
+        }
+
+        public Payment asPayment() {
+            return new Payment(
+                    Payment.Id.of(id),
+                    amount
+            );
+        }
     }
 }

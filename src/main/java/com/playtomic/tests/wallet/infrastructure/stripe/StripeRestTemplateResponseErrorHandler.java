@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.infrastructure.stripe;
 
+import com.playtomic.tests.wallet.domain.PaymentGateway;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 
@@ -18,7 +19,9 @@ public class StripeRestTemplateResponseErrorHandler implements ResponseErrorHand
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
         if (response.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
-            throw new StripeAmountTooSmallException();
+            throw new PaymentGateway.ChargeAmountTooSmallException();
+        } else {
+            throw new PaymentGateway.Exception();
         }
     }
 }

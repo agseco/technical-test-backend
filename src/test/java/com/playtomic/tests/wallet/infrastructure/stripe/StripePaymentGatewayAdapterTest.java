@@ -1,32 +1,82 @@
 package com.playtomic.tests.wallet.infrastructure.stripe;
 
-import org.junit.jupiter.api.Assertions;
+import com.playtomic.tests.wallet.domain.Payment;
+import com.playtomic.tests.wallet.domain.PaymentGateway;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.UUID;
 
-/**
- * This test is failing with the current implementation.
- *
- * How would you test this?
- */
-// TODO: possibly test with by mocking HTTP request/response
-public class StripePaymentGatewayAdapterTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-    URI testUri = URI.create("http://how-would-you-test-me.localhost");
-    StripePaymentGatewayAdapter s = new StripePaymentGatewayAdapter(testUri, testUri, new RestTemplateBuilder());
+@ExtendWith(SpringExtension.class)
+@RestClientTest(StripePaymentGatewayAdapter.class)
+class StripePaymentGatewayAdapterTest {
+
+    @Autowired
+    private MockRestServiceServer mockServer;
+
+    private final URI chargesUri = URI.create("https://sandbox.playtomic.io/v1/stripe-simulator/charges");
+
+    @Autowired
+    private StripePaymentGatewayAdapter paymentGatewayAdapter;
 
     @Test
-    public void test_exception() {
-        Assertions.assertThrows(StripeAmountTooSmallException.class, () -> {
-            s.charge("4242 4242 4242 4242", new BigDecimal(5));
-        });
+    void shouldChargeCreditCardSuccessfully() {
+        // Given
+        String creditCardNumber = "4242424242424242";
+        BigDecimal amount = BigDecimal.valueOf(100);
+        String fakePaymentId = UUID.randomUUID().toString();
+        String jsonResponse = "{\"id\": \"" + fakePaymentId + "\", \"amount\": " + amount + "}";
+
+        // Expect
+        mockServer.expect(requestTo(chargesUri))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().json("{\"credit_card\": \"" + creditCardNumber + "\", \"amount\": " + amount + "}"))
+                .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
+
+        // When
+        Payment payment = paymentGatewayAdapter.charge(creditCardNumber, amount);
+
+        // Then
+        assertThat(payment).isNotNull();
+        assertThat(payment.getId().id()).isEqualTo(fakePaymentId);
+        assertThat(payment.getAmount())
+                .usingComparator(BigDecimal::compareTo)
+                .isEqualTo(BigDecimal.valueOf(100.0));
+
+        mockServer.verify();
     }
 
     @Test
-    public void test_ok() throws StripeServiceException {
-        s.charge("4242 4242 4242 4242", new BigDecimal(15));
+    void shouldThrowWhenTheProvidedAmountIsTooSmall() {
+        // Given
+        String creditCardNumber = "4242424242424242";
+        BigDecimal amount = BigDecimal.valueOf(0.10);
+
+        // Expect
+        mockServer.expect(requestTo(chargesUri))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().json("{\"credit_card\": \"" + creditCardNumber + "\", \"amount\": " + amount + "}"))
+                .andRespond(withStatus(HttpStatusCode.valueOf(422)));
+
+        // Then
+        assertThatThrownBy(() -> paymentGatewayAdapter.charge(creditCardNumber, amount))
+                .isExactlyInstanceOf(PaymentGateway.ChargeAmountTooSmallException.class);
+
+        mockServer.verify();
     }
 }

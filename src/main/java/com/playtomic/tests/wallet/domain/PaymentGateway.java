@@ -6,5 +6,7 @@ import java.math.BigDecimal;
 
 public interface PaymentGateway {
     Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount);
-    void refund(@NonNull String paymentId);
+
+    class Exception extends RuntimeException { }
+    class ChargeAmountTooSmallException extends Exception { }
 }
