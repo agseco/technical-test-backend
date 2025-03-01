@@ -7,7 +7,7 @@ import java.util.UUID;
 public class WalletFaker {
     public static Wallet random() {
         return new Wallet(
-                WalletFaker.WalletIdFaker.random(),
+                Id.random(),
                 UserIdFaker.random(),
                 randomBalance()
         );
@@ -27,13 +27,13 @@ public class WalletFaker {
 
     public static Wallet withBalance(double balance) {
         return new Wallet(
-                WalletIdFaker.random(),
+                Id.random(),
                 UserId.of(UUID.randomUUID()),
                 balance
         );
     }
 
-    public static class WalletIdFaker {
+    public static class Id {
         public static Wallet.Id random() {
             return Wallet.Id.of(Faker.uuid());
         }

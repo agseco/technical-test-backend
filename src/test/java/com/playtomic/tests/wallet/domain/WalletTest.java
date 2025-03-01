@@ -28,7 +28,7 @@ class WalletTest {
     @Test
     void shouldEnforceEqualityForSameId() {
         // Given
-        Wallet.Id walletId = WalletFaker.WalletIdFaker.random();
+        Wallet.Id walletId = WalletFaker.Id.random();
         Wallet wallet1 = WalletFaker.withId(walletId);
         Wallet wallet2 = WalletFaker.withId(walletId);
 

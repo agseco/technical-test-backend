@@ -1,6 +1,5 @@
 package com.playtomic.tests.wallet.infrastructure.jpa;
 
-import com.playtomic.tests.core.ResourceNotFoundException;
 import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletFaker;
 import org.junit.jupiter.api.Test;
@@ -10,12 +9,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@Import(JpaWalletRepositoryAdapter.class) // Explicitly import the adapter
+@Import(JpaWalletRepositoryAdapter.class)
 class JpaWalletRepositoryAdapterIT {
 
     @Autowired
@@ -37,26 +37,28 @@ class JpaWalletRepositoryAdapterIT {
     }
 
     @Test
-    void shouldRetrieveWalletById() {
+    void shouldRetrieveExistingWalletById() {
         // Given
         Wallet wallet = WalletFaker.random();
         walletRepositoryAdapter.save(wallet);
 
         // When
-        Wallet retrievedWallet = walletRepositoryAdapter.findById(wallet.getId());
+        Optional<Wallet> retrievedWallet = walletRepositoryAdapter.findById(wallet.getId());
 
         // Then
-        assertThat(retrievedWallet).isEqualTo(wallet);
+        assertThat(retrievedWallet).isEqualTo(Optional.of(wallet));
     }
 
     @Test
-    void shouldThrowExceptionWhenWalletNotFound() {
+    void shouldReturnEmptyWhenWalletDoesNotExsit() {
         // Given
-        Wallet.Id nonExistentId = WalletFaker.WalletIdFaker.random();
+        Wallet wallet = WalletFaker.random();
+
+        // When
+        Optional<Wallet> retrievedWallet = walletRepositoryAdapter.findById(wallet.getId());
 
         // Then
-        assertThatThrownBy(() -> walletRepositoryAdapter.findById(nonExistentId))
-                .isInstanceOf(ResourceNotFoundException.class);
+        assertThat(retrievedWallet).isNotPresent();
     }
 }
 
