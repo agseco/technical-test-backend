@@ -1,9 +1,8 @@
 package com.playtomic.tests.wallet.domain;
 
+import com.playtomic.tests.core.domain.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class FetchWallet {
@@ -14,7 +13,8 @@ public class FetchWallet {
         this.repository = repository;
     }
 
-    public Optional<Wallet> fetch(Wallet.Id id) {
-        return repository.findById(id);
+    public Wallet fetch(Wallet.Id id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Wallet %s not found", id)));
     }
 }

@@ -18,12 +18,13 @@ public class TopUpWallet {
     }
 
     public Wallet topUp(TopUpCommand command) {
-        paymentGateway.charge(command.cardDetails(), command.amount);
-
         Wallet wallet = repository.findByIdWithPessimisticLocking(command.walletId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Wallet %s not found", command.walletId)));
 
-        return repository.save(wallet.topUp(command.amount));
+        Wallet toppedUpWallet = repository.save(wallet.topUp(command.amount));
+        paymentGateway.charge(command.cardDetails(), command.amount);
+
+        return toppedUpWallet;
     }
 
     public record TopUpCommand(

@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.domain;
 
+import com.playtomic.tests.core.domain.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,30 +28,32 @@ class FetchWalletTest {
         Wallet.Id walletId = WalletFaker.Id.random();
         Wallet expectedWallet = WalletFaker.withId(walletId);
 
-        when(walletRepository.findById(walletId)).thenReturn(Optional.of(expectedWallet));
+        when(walletRepository.findById(walletId))
+                .thenReturn(Optional.of(expectedWallet));
 
         // When
-        Optional<Wallet> result = fetchWallet.fetch(walletId);
+        Wallet result = fetchWallet.fetch(walletId);
 
         // Then
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(expectedWallet);
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(expectedWallet);
         verify(walletRepository, times(1)).findById(walletId);
     }
 
     @Test
-    void shouldReturnEmptyWhenWalletNotFound() {
+    void shouldThrowOnWalletNotFound() {
         // Given
         Wallet.Id walletId = WalletFaker.Id.random();
 
-        when(walletRepository.findById(walletId)).thenReturn(Optional.empty());
-
-        // When
-        Optional<Wallet> result = fetchWallet.fetch(walletId);
+        when(walletRepository.findById(walletId))
+                .thenReturn(Optional.empty());
 
         // Then
-        assertThat(result).isEmpty();
-        verify(walletRepository, times(1)).findById(walletId);
+        assertThrows(EntityNotFoundException.class, () -> {
+            fetchWallet.fetch(walletId);
+        });
+        verify(walletRepository, times(1))
+                .findById(walletId);
     }
 }
 
