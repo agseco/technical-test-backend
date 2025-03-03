@@ -35,10 +35,8 @@ class TopUpWalletTest {
         BigDecimal amountToTopUp = BigDecimal.valueOf(50.0);
         TopUpWallet.TopUpCommand command = new TopUpWallet.TopUpCommand(wallet.getId(), cardDetails, amountToTopUp);
 
-        when(walletRepository.findByIdWithPessimisticLocking(wallet.getId()))
+        when(walletRepository.findByIdAndLock(wallet.getId()))
                 .thenReturn(Optional.of(wallet));
-        when(walletRepository.save(Mockito.any()))
-                .thenReturn(new Wallet(wallet.getId(), wallet.getUserId(), wallet.getBalance().add(amountToTopUp)));  // The saved wallet has a topped-up balance
 
         // When
         Wallet toppedUpWallet = topUpWallet.topUp(command);
@@ -49,9 +47,9 @@ class TopUpWalletTest {
         assertEquals(wallet.getBalance().add(amountToTopUp), toppedUpWallet.getBalance());
 
         verify(walletRepository, times(1))
-                .findByIdWithPessimisticLocking(wallet.getId());
+                .findByIdAndLock(wallet.getId());
         verify(walletRepository, times(1))
-                .save(Mockito.any());
+                .update(Mockito.any());
         verify(paymentGateway, times(1))
                 .charge(Mockito.any(), Mockito.any());
     }
@@ -64,18 +62,16 @@ class TopUpWalletTest {
         BigDecimal amountToTopUp = BigDecimal.valueOf(50.0);
         TopUpWallet.TopUpCommand command = new TopUpWallet.TopUpCommand(wallet.getId(), cardDetails, amountToTopUp);
 
-        when(walletRepository.findByIdWithPessimisticLocking(wallet.getId()))
+        when(walletRepository.findByIdAndLock(wallet.getId()))
                 .thenReturn(Optional.empty());
 
         // Then
-        assertThrows(EntityNotFoundException.class, () -> {
-            topUpWallet.topUp(command);
-        });
+        assertThrows(EntityNotFoundException.class, () -> topUpWallet.topUp(command));
 
         verify(walletRepository, times(1))
-                .findByIdWithPessimisticLocking(wallet.getId());
+                .findByIdAndLock(wallet.getId());
         verify(walletRepository, times(0))
-                .save(Mockito.any());
+                .update(Mockito.any());
         verify(paymentGateway, times(0))
                 .charge(Mockito.any(), Mockito.any());
     }

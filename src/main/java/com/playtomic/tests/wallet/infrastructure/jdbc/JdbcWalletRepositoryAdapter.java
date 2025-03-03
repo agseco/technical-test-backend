@@ -28,25 +28,23 @@ public class JdbcWalletRepositoryAdapter implements WalletRepository {
 
     @Override
     @Transactional
-    public Optional<Wallet> findByIdWithPessimisticLocking(Wallet.Id id) {
+    public Optional<Wallet> findByIdAndLock(Wallet.Id id) {
         return repository.findByIdForUpdate(id.id())
                 .map(WalletEntity::toDomain);
     }
 
     @Override
-    public Wallet insert(Wallet wallet) {
+    public void insert(Wallet wallet) {
         WalletEntity entity = WalletEntity.fromDomain(wallet);
 
         String sql = "INSERT INTO wallets (id, user_id, balance) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, entity.getId(), entity.getUserId(), entity.getBalance());
-
-        return wallet;
     }
 
     @Override
     @Transactional
-    public Wallet save(Wallet wallet) {
+    public void update(Wallet wallet) {
         WalletEntity entity = WalletEntity.fromDomain(wallet);
-        return repository.save(entity).toDomain();
+        repository.save(entity).toDomain();
     }
 }
