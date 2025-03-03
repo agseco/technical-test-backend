@@ -1,14 +1,12 @@
-package com.playtomic.tests.wallet.infrastructure.jpa;
+package com.playtomic.tests.wallet.infrastructure.jdbc;
 
 import com.playtomic.tests.wallet.domain.UserId;
 import com.playtomic.tests.wallet.domain.Wallet;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,7 +14,6 @@ import java.util.UUID;
 @Setter
 @Getter
 @ToString
-@Entity
 @Table(name = "wallets")
 public class WalletEntity {
 
@@ -24,9 +21,6 @@ public class WalletEntity {
     private UUID id;
     private UUID userId;
     private BigDecimal balance;
-
-    @Version
-    private Long version;
 
     protected WalletEntity() {}
 

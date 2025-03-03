@@ -20,7 +20,7 @@ public class TopUpWallet {
     public Wallet topUp(TopUpCommand command) {
         paymentGateway.charge(command.cardDetails(), command.amount);
 
-        Wallet wallet = repository.findById(command.walletId)
+        Wallet wallet = repository.findByIdWithPessimisticLocking(command.walletId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Wallet %s not found", command.walletId)));
 
         return repository.save(wallet.topUp(command.amount));
