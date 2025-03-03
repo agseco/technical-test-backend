@@ -8,7 +8,6 @@ import com.playtomic.tests.wallet.infrastructure.jdbc.JdbcWalletRepositoryAdapte
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,12 +38,9 @@ class WalletControllerIT {
     @Autowired
     private JdbcWalletRepositoryAdapter walletRepositoryAdapter;
 
-    @InjectMocks
-    private WalletController walletController;
-
     private static final String WALLET_ID = "a1d6f054-4e3c-44f3-9f24-b5e5c312e776";
     private static final String USER_ID = "d7b87957-52f0-49d9-9887-0e92a55c314d";
-    private static final BigDecimal BALANCE = BigDecimal.valueOf(100.0);
+    private static final BigDecimal INITIAL_BALANCE = BigDecimal.valueOf(100.0);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -60,11 +56,11 @@ class WalletControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(WALLET_ID))
                 .andExpect(jsonPath("$.userId").value(USER_ID))
-                .andExpect(jsonPath("$.balance").value(BALANCE));
+                .andExpect(jsonPath("$.balance").value(INITIAL_BALANCE));
     }
 
     @Test
-    void shouldGetWalletWhenItDoesNotExist() throws Exception {
+    void getWalletShouldReturn404WhenItDoesNotExist() throws Exception {
         mockMvc.perform(get("/wallet/{id}", UUID.randomUUID().toString()))
                 .andExpect(status().isNotFound());
     }
@@ -72,22 +68,22 @@ class WalletControllerIT {
     @Test
     void shouldTopUpWallet() throws Exception {
         BigDecimal topUpAmount = BigDecimal.valueOf(50.0);
-
         WalletController.TopUpRequest topUpRequest = new WalletController.TopUpRequest(CARD_NUMBER, topUpAmount);
+
         mockMvc.perform(put("/wallet/{id}", WALLET_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(topUpRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(WALLET_ID))
                 .andExpect(jsonPath("$.userId").value(USER_ID))
-                .andExpect(jsonPath("$.balance").value(BALANCE.add(topUpAmount)));
+                .andExpect(jsonPath("$.balance").value(INITIAL_BALANCE.add(topUpAmount)));
     }
 
     private Wallet mockWallet() {
         return new Wallet(
                 Wallet.Id.of(WALLET_ID),
                 UserId.of(USER_ID),
-                BALANCE
+                INITIAL_BALANCE
         );
     }
 }
