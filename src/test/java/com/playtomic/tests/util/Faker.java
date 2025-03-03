@@ -1,4 +1,4 @@
-package com.playtomic.tests.utils;
+package com.playtomic.tests.util;
 
 import java.util.UUID;
 

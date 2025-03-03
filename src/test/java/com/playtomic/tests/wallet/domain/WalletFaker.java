@@ -1,6 +1,6 @@
 package com.playtomic.tests.wallet.domain;
 
-import com.playtomic.tests.utils.Faker;
+import com.playtomic.tests.util.Faker;
 
 import java.math.BigDecimal;
 import java.util.UUID;

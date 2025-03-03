@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.infrastructure.stripe;
 
+import com.playtomic.tests.util.Constants;
 import com.playtomic.tests.wallet.domain.Payment;
 import com.playtomic.tests.wallet.domain.PaymentGateway;
 import org.junit.jupiter.api.Test;
@@ -81,6 +82,6 @@ class StripePaymentGatewayAdapterTest {
     }
 
     private PaymentGateway.CardDetails validCardDetails() {
-        return new PaymentGateway.CardDetails("4242424242424242");
+        return new PaymentGateway.CardDetails(Constants.CARD_NUMBER);
     }
 }

@@ -38,6 +38,14 @@ public class WalletEntity {
         );
     }
 
+    public static WalletEntity fromDomainForInsert(Wallet wallet) {
+        return new WalletEntity(
+                null,
+                wallet.getUserId().id(),
+                wallet.getBalance()
+        );
+    }
+
     public static WalletEntity fromDomain(Wallet wallet) {
         return new WalletEntity(
                 wallet.getId().id(),

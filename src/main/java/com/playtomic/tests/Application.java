@@ -1,12 +1,12 @@
-package com.playtomic.tests.wallet;
+package com.playtomic.tests;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WalletApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WalletApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }
