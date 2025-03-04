@@ -51,11 +51,11 @@ class TopUpWalletIT {
         BigDecimal amountToTopUp = BigDecimal.valueOf(50.0);
         TopUpWallet.TopUpCommand command = new TopUpWallet.TopUpCommand(WALLET.getId(), cardDetails, amountToTopUp);
 
-        doThrow(new RuntimeException("Charge failed"))
+        doThrow(new PaymentGateway.Exception())
                 .when(paymentGateway)
                 .charge(any(PaymentGateway.CardDetails.class), any(BigDecimal.class));
 
-        assertThrows(RuntimeException.class, () -> topUpWallet.topUp(command));
+        assertThrows(PaymentGateway.Exception.class, () -> topUpWallet.topUp(command));
 
         Optional<Wallet> wallet = walletRepositoryAdapter.findById(WALLET.getId());
         assertThat(wallet).isPresent()
