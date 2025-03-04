@@ -37,7 +37,7 @@ public class Wallet {
         }
     }
 
-    public Wallet topUp(BigDecimal amount) {
+    public Wallet topUp(@NonNull BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Top up amount must be positive");
         }

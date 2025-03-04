@@ -3,6 +3,7 @@ package com.playtomic.tests.wallet.infrastructure.jdbc;
 import com.playtomic.tests.wallet.domain.UserId;
 import com.playtomic.tests.wallet.domain.Wallet;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
@@ -18,13 +19,13 @@ import java.util.UUID;
 public class WalletEntity {
 
     @Id
-    private UUID id;
-    private UUID userId;
-    private BigDecimal balance;
+    @NonNull private UUID id;
+    @NonNull private UUID userId;
+    @NonNull private BigDecimal balance;
 
-    protected WalletEntity() {}
+    protected WalletEntity() { }
 
-    public WalletEntity(UUID id, UUID userId, BigDecimal balance) {
+    public WalletEntity(@NonNull UUID id, @NonNull UUID userId, @NonNull BigDecimal balance) {
         this.id = id;
         this.userId = userId;
         this.balance = balance;
@@ -35,14 +36,6 @@ public class WalletEntity {
                 Wallet.Id.of(id),
                 UserId.of(userId),
                 balance
-        );
-    }
-
-    public static WalletEntity fromDomainForInsert(Wallet wallet) {
-        return new WalletEntity(
-                null,
-                wallet.getUserId().id(),
-                wallet.getBalance()
         );
     }
 

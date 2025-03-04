@@ -8,7 +8,7 @@ public interface PaymentGateway {
     Payment charge(@NonNull CardDetails cardDetails, @NonNull BigDecimal amount);
 
     record CardDetails(
-            String number
+            @NonNull String number
     ) { }
 
     class Exception extends RuntimeException { }

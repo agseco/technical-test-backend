@@ -1,6 +1,7 @@
 package com.playtomic.tests.wallet.domain;
 
 import com.playtomic.tests.core.domain.EntityNotFoundException;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ public class TopUpWallet {
     }
 
     @Transactional
-    public Wallet topUp(TopUpCommand command) {
+    public Wallet topUp(@NonNull TopUpCommand command) {
         Wallet wallet = repository.findByIdAndLock(command.walletId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Wallet %s not found", command.walletId)));
 
@@ -32,8 +33,8 @@ public class TopUpWallet {
     }
 
     public record TopUpCommand(
-            Wallet.Id walletId,
-            PaymentGateway.CardDetails cardDetails,
-            BigDecimal amount
+            @NonNull Wallet.Id walletId,
+            @NonNull PaymentGateway.CardDetails cardDetails,
+            @NonNull BigDecimal amount
     ) { }
 }

@@ -20,7 +20,6 @@ public class StripePaymentGatewayAdapter implements PaymentGateway {
 
     @NonNull
     private final URI chargesUri;
-
     @NonNull
     private final RestTemplate restTemplate;
 
