@@ -23,8 +23,6 @@ public class WalletEntity {
     @NonNull private UUID userId;
     @NonNull private BigDecimal balance;
 
-    protected WalletEntity() { }
-
     public WalletEntity(@NonNull UUID id, @NonNull UUID userId, @NonNull BigDecimal balance) {
         this.id = id;
         this.userId = userId;

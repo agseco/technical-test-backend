@@ -59,11 +59,11 @@ class TopUpWalletIT {
 
         Optional<Wallet> wallet = walletRepositoryAdapter.findById(WALLET.getId());
         assertThat(wallet).isPresent()
-                .hasValueSatisfying(w -> {
-                    assertThat(w.getBalance())
-                            .usingComparator(BigDecimal::compareTo)
-                            .isEqualTo(WALLET.getBalance());
-                });
+                .hasValueSatisfying(w ->
+                        assertThat(w.getBalance())
+                                .usingComparator(BigDecimal::compareTo)
+                                .isEqualTo(WALLET.getBalance())
+                );
     }
 
     private PaymentGateway.CardDetails cardDetails() {
